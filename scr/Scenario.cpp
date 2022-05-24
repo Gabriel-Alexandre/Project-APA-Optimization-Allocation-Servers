@@ -8,26 +8,39 @@ Scenario::Scenario() {
     
 }
 
-void setServers(int servers) {
+void Scenario::setServers(int servers) {
+    this->servers = servers;
     
 }
-void setJobs(int jobs) {
-    
-}
-
-void addItemSpend(int i, int spend) {
-    
-}
-void addItemTime(int i, int time) {
-    
+void Scenario::setJobs(int jobs) {
+    this->jobs = jobs;
 }
 
-void printServersJobs() {
+void Scenario::addItemSpend(vector <int> spend) {
+    this->spend.push_back(spend);
+}
+
+void Scenario::addItemTime(vector <int> time) {
+    this->time.push_back(time);
+}
+
+void Scenario::printServersJobs() {
+    cout << "servers: " << this->servers << ", " << "jobs: " << this->jobs << endl;
     
 }
-void printVectorSpend() {
-    
+void Scenario::printVectorSpend() {
+    for (vector <int> v: this->spend) {
+        for (int i: v) {
+            cout << i;
+        }
+        cout << endl;
+    }
 }
-void printVectorTime() {
-    
+void Scenario::printVectorTime() {
+    for (vector <int> v: this->time) {
+        for (int i: v) {
+            cout << i;
+        }
+        cout << endl;
+    }
 }

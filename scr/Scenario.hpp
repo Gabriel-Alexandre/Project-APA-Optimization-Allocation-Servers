@@ -16,8 +16,8 @@ class Scenario {
 		void setServers(int servers);
 		void setJobs(int jobs);
 
-        void addItemSpend(int i, int spend);
-        void addItemTime(int i, int time);
+        void addItemSpend(vector <int> spend);
+        void addItemTime(vector <int> time);
         
         void printServersJobs();
         void printVectorSpend();
