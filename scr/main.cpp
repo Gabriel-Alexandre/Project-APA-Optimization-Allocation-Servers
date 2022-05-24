@@ -1,5 +1,7 @@
 #include <iostream>
 #include <vector>
+#include <fstream>
+#include <string>
 #include "Scenario.hpp"
 
 using namespace std;
@@ -27,5 +29,33 @@ int main() {
     // first.printVectorSpend();
     // first.printVectorTime();
 
-    
+    string line;
+    ifstream data ("adjacency_matrix.txt"); 
+
+    string servers, jobs; 
+
+    getline(data, servers); // transformar em int
+    getline(data, jobs); // transformar em int
+
+    cout << servers << endl;
+    cout << jobs << endl;
+
+    // Lê a outras linha segundo esse mesmo princípio
+
+
+
+    // if (data.is_open())
+    // {
+    //     while(!data.eof())
+    //     {
+    //         getline(data,line);
+    //         cout << line << endl;
+    //     }
+    //     data.close();
+    // }
+
+
+
+
+
 }
