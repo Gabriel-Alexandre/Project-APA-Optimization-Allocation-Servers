@@ -86,3 +86,82 @@ vector <int> Scenario::auxSplit(string word) {
 
     return v;
 }
+
+void Scenario::generateSolution() {
+
+    for (int i = 0; i < this->servers; i++) {
+        vector <float> aux;
+
+        for (int j = 0; j < this->jobs; j++) {
+            aux.push_back(this->time[i][j]/(this->spend[i][j]*1.0));
+        }
+
+        this->solution.push_back(aux);
+    }
+
+    // for (vector<float> x: this->solution) {
+    //     for(float i: x) {
+    //         cout << i << ' ';
+    //     }
+    //     cout << endl;
+    // }
+    
+    int totalTime[this->servers];
+
+    for(int i = 0; i < servers; i++) {
+            totalTime[i] = 0;
+        }
+
+    for (int i = 0; i < this->jobs; i++) {
+        float min = 1000000;
+        
+        int indice;
+        vector<int> aux;
+
+        for (int j = 0; j < this->servers; j++) {
+            if ((i == 0) && (this->time[j][i] <= this->capacity[j])) {
+                if (this->solution[j][i] < min) {
+                    min = this->solution[j][i];
+                    indice = j;
+                }
+            }
+            
+            if ((i > 0) && (this->solution[j][i] < min) && ((totalTime[j]+ this->time[j][i]) <= this->capacity[j])) {
+                min = this->solution[j][i];
+                indice = j;
+            }
+        }
+
+        totalTime[indice] += this->time[indice][i];
+
+        aux.push_back(indice+1);
+        aux.push_back(this->spend[indice][i]);
+
+        this->finalSolutionSpend.push_back(aux);
+
+        aux.pop_back();
+        aux.push_back(this->time[indice][i]);
+
+        this->finalSolutionTime.push_back(aux);
+    }
+
+    cout << "Final solution:\n" << endl;
+
+    cout << "Spend:\n" << endl;
+
+    for(vector <int> i: this->finalSolutionSpend) {
+        for (int x: i) {
+            cout << x << ' ';
+        }
+        cout << endl;
+    }
+
+    cout << "Time:\n" << endl;
+
+    for(vector <int> i: this->finalSolutionTime) {
+        for (int x: i) {
+            cout << x << ' ';
+        }
+        cout << endl;
+    }
+}

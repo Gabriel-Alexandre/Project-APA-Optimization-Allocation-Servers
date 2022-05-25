@@ -10,8 +10,11 @@ class Scenario {
 		int servers;
 		int jobs;
         vector <int> capacity;
+        vector <vector<int>> finalSolutionSpend;
+        vector <vector<int>> finalSolutionTime;
         vector <vector<int>> spend;
         vector <vector<int>> time;
+        vector <vector <float>> solution;
 
 	public:
 		Scenario();
@@ -30,6 +33,8 @@ class Scenario {
         void printCapacity();
 
         vector <int> auxSplit(string word);
+
+        void generateSolution();
 		
 };
 #endif

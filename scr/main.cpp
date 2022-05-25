@@ -21,8 +21,8 @@ int main() {
 
     A.addItemCapacity(line);
 
-    A.printServersJobs();
-    A.printCapacity();
+    // A.printServersJobs();
+    // A.printCapacity();
 
     for (int i = 0; i < 2; i++) {
         getline(data, line);
@@ -40,6 +40,7 @@ int main() {
         }
     }
 
-    A.printVectorTime();
-    A.printVectorSpend();
+    // A.printVectorTime();
+    // A.printVectorSpend();
+    A.generateSolution();
 }
