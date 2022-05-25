@@ -7,55 +7,39 @@
 using namespace std;
 
 int main() {
-    // Scenario first;
-
-    // first.setJobs(4);
-    // first.setServers(4);
-
-    // for(int i = 0; i < 4; i++) {
-    //     vector <int> aux;
-
-    //     aux.push_back(i);
-    //     aux.push_back(i);
-    //     aux.push_back(i);
-    //     aux.push_back(i);
-
-    //     first.addItemSpend(aux);
-    //     first.addItemTime(aux);
-    // }
-
-    // first.printServersJobs();
-
-    // first.printVectorSpend();
-    // first.printVectorTime();
-
+    Scenario A;
     string line;
-    ifstream data ("adjacency_matrix.txt"); 
+    ifstream data ("adjacency_matrix.txt");
 
-    string servers, jobs; 
+    getline(data, line); 
+    A.setJobs(stoi(line));
+    getline(data, line); 
+    A.setServers(stoi(line));
 
-    getline(data, servers); // transformar em int
-    getline(data, jobs); // transformar em int
+    getline(data, line);
+    getline(data, line);
 
-    cout << servers << endl;
-    cout << jobs << endl;
+    A.addItemCapacity(line);
 
-    // Lê a outras linha segundo esse mesmo princípio
+    A.printServersJobs();
+    A.printCapacity();
 
+    for (int i = 0; i < 2; i++) {
+        getline(data, line);
+        if(i == 0) {
+            for (int i = 0; i < A.getServers(); i++) {
+                getline(data, line);
+                A.addItemTime(line);
+            }
+        }
+        if(i == 1) {
+            for (int i = 0; i < A.getServers(); i++) {
+                getline(data, line);
+                A.addItemSpend(line);
+            }
+        }
+    }
 
-
-    // if (data.is_open())
-    // {
-    //     while(!data.eof())
-    //     {
-    //         getline(data,line);
-    //         cout << line << endl;
-    //     }
-    //     data.close();
-    // }
-
-
-
-
-
+    A.printVectorTime();
+    A.printVectorSpend();
 }
