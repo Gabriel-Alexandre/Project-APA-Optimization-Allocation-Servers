@@ -158,7 +158,7 @@ void Scenario::generateSolution() {
         vector <float> aux;
 
         for (int j = 0; j < this->jobs; j++) {
-            aux.push_back(this->time[i][j]/(this->spend[i][j]*1.0));
+            aux.push_back((this->spend[i][j]*1.0));
         }
 
         this->solution.push_back(aux);
