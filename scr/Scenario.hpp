@@ -7,14 +7,14 @@ using namespace std;
 	
 class Scenario {
 	private:
-		int servers;
-		int jobs;
-        vector <int> capacity;
-        vector <vector<int>> finalSolutionSpend;
-        vector <vector<int>> finalSolutionTime;
-        vector <vector<int>> spend;
-        vector <vector<int>> time;
-        vector <vector <float>> solution;
+		int servers; // numero de servidores
+		int jobs; // numero de jobs
+        vector <int> capacity; // capacidade de cada servidor
+        vector <vector<int>> finalSolutionSpend; // custo de acordo com servidor escolhido
+        vector <vector<int>> finalSolutionTime; // tempo de acordo com servidor escolhido
+        vector <vector<int>> spend; // vetor de custos de cada servidor
+        vector <vector<int>> time; // vetor de tempo de cada servidor
+        vector <vector <float>> solution; // vetor de 'time/spend' de cada servidor
 
 	public:
 		Scenario();
@@ -33,9 +33,11 @@ class Scenario {
         void printCapacity();
         void printSolution();
 
+        // funcao que auxiliar que ajuda na obtencao e transformacao dos valores 
+        // (utilizada apos a leitura do arquivo)
         vector <int> auxSplit(string word);
 
-        void generateSolution();
+        void generateSolution(); // gerar solucao -> escolher quais servidores serão alocados para cada job
 		
 };
 #endif
