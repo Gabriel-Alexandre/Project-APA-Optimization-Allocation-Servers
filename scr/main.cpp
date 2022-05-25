@@ -9,7 +9,7 @@ using namespace std;
 int main() {
     Scenario A;
     string line;
-    ifstream data ("adjacency_matrix.txt");
+    ifstream data ("test.txt");
 
     getline(data, line); 
     A.setJobs(stoi(line));
@@ -43,4 +43,5 @@ int main() {
     // A.printVectorTime();
     // A.printVectorSpend();
     A.generateSolution();
+    A.printSolution();
 }

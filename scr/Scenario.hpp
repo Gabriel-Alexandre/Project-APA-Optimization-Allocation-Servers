@@ -31,6 +31,7 @@ class Scenario {
         void printVectorSpend();
         void printVectorTime();
         void printCapacity();
+        void printSolution();
 
         vector <int> auxSplit(string word);
 

@@ -66,6 +66,70 @@ void Scenario::printCapacity() {
     }
 }
 
+void Scenario::printSolution() {
+    cout << "Final solution:" << endl;
+
+    int total[this->servers];
+    int sum = 0;
+
+    for(int i = 0; i < this->servers; i++) {
+        total[i] = 0;
+    }
+
+    cout << "\nSpend:\n" << endl;
+
+    for(vector <int> i: this->finalSolutionSpend) {
+        int indice = 0;
+
+        for (int j = 0; j < 2; j++) {
+            if (j == 0) {
+                indice = i[j];
+            }
+            if (j == 1) {
+                total[indice] += i[j];
+                sum += i[j];
+            }
+
+            cout << i[j] << ' ';
+        }
+        cout << endl;
+    }
+
+    for (int i = 0; i < this->servers; i++) {
+        cout << "Total spend[" << i << "] : " << total[i] << endl;
+    }
+    cout << "Sum: " << sum << endl;
+
+    for(int i = 0; i < this->servers; i++) {
+        total[i] = 0;
+    }
+
+    sum = 0;
+
+    cout << "\nTime:\n" << endl;
+
+    for(vector <int> i: this->finalSolutionTime) {
+        int indice = 0;
+
+        for (int j = 0; j < 2; j++) {
+            if (j == 0) {
+                indice = i[j];
+            }
+            if (j == 1) {
+                total[indice] += i[j];
+                sum += i[j];
+            }
+
+            cout << i[j] << ' ';
+        }
+        cout << endl;
+    }
+    for (int i = 0; i < this->servers; i++) {
+        cout << "Total time[" << i << "] : " << total[i] << endl;
+    }
+    cout << "Sum: " << sum << endl;
+}
+
 vector <int> Scenario::auxSplit(string word) {
     string aux;
     vector <int> v;
@@ -108,13 +172,13 @@ void Scenario::generateSolution() {
     
     int totalTime[this->servers];
 
-    for(int i = 0; i < servers; i++) {
-            totalTime[i] = 0;
-        }
+    for(int i = 0; i < this->servers; i++) {
+        totalTime[i] = 0;
+    }
 
     for (int i = 0; i < this->jobs; i++) {
         float min = 1000000;
-        
+        int control = 0;
         int indice;
         vector<int> aux;
 
@@ -124,44 +188,30 @@ void Scenario::generateSolution() {
                     min = this->solution[j][i];
                     indice = j;
                 }
+            } else if (i == 0) {
+                control++;
             }
             
-            if ((i > 0) && (this->solution[j][i] < min) && ((totalTime[j]+ this->time[j][i]) <= this->capacity[j])) {
+            if ((i > 0) && (this->solution[j][i] < min) && ((totalTime[j] + this->time[j][i]) <= this->capacity[j])) {
                 min = this->solution[j][i];
                 indice = j;
+            } else if (i > 0) {
+                control++;
             }
         }
 
-        totalTime[indice] += this->time[indice][i];
+        if (control < this->servers) {
+            totalTime[indice] += this->time[indice][i];
 
-        aux.push_back(indice+1);
-        aux.push_back(this->spend[indice][i]);
+            aux.push_back(indice);
+            aux.push_back(this->spend[indice][i]);
 
-        this->finalSolutionSpend.push_back(aux);
+            this->finalSolutionSpend.push_back(aux);
 
-        aux.pop_back();
-        aux.push_back(this->time[indice][i]);
+            aux.pop_back();
+            aux.push_back(this->time[indice][i]);
 
-        this->finalSolutionTime.push_back(aux);
-    }
-
-    cout << "Final solution:\n" << endl;
-
-    cout << "Spend:\n" << endl;
-
-    for(vector <int> i: this->finalSolutionSpend) {
-        for (int x: i) {
-            cout << x << ' ';
+            this->finalSolutionTime.push_back(aux);
         }
-        cout << endl;
-    }
-
-    cout << "Time:\n" << endl;
-
-    for(vector <int> i: this->finalSolutionTime) {
-        for (int x: i) {
-            cout << x << ' ';
-        }
-        cout << endl;
     }
 }
