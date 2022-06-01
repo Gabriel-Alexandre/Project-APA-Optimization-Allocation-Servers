@@ -8,63 +8,6 @@ Scenario::Scenario() {
     
 }
 
-void Scenario::setServers(int servers) {
-    this->servers = servers;
-    
-}
-void Scenario::setJobs(int jobs) {
-    this->jobs = jobs;
-}
-
-int Scenario::getServers() {
-    return this->servers;
-}
-
-int Scenario::getJobs() {
-    return this->jobs;
-}
-
-
-void Scenario::addItemSpend(string spend) {
-    this->spend.push_back(this->auxSplit(spend));
-}
-
-void Scenario::addItemTime(string time) {
-    this->time.push_back(this->auxSplit(time));
-}
-
-void Scenario::addItemCapacity(string capacity) {
-    for (int i: this->auxSplit(capacity)) {
-        this->capacity.push_back(i);
-    }
-}
-
-void Scenario::printServersJobs() {
-    cout << "servers: " << this->servers << ", " << "jobs: " << this->jobs << endl;
-    
-}
-void Scenario::printVectorSpend() {
-    for (vector <int> v: this->spend) {
-        for (int i: v) {
-            cout << i << ' ';
-        }
-        cout << endl;
-    }
-}
-void Scenario::printVectorTime() {
-    for (vector <int> v: this->time) {
-        for (int i: v) {
-            cout << i << ' ';
-        }
-        cout << endl;
-    }
-}
-
-void Scenario::printCapacity() {
-    for (int i: this->capacity) {
-        cout << i << endl;
-    }
-}
 
 void Scenario::printSolution() {
     cout << "Final solution:" << endl;
@@ -78,7 +21,7 @@ void Scenario::printSolution() {
 
     cout << "\nSpend:\n" << endl;
 
-    for(vector <int> i: this->finalSolutionSpend) {
+    for(vector <double> i: this->finalSolutionSpend) {
         int indice = 0;
 
         for (int j = 0; j < 2; j++) {
@@ -108,7 +51,7 @@ void Scenario::printSolution() {
 
     cout << "\nTime:\n" << endl;
 
-    for(vector <int> i: this->finalSolutionTime) {
+    for(vector <double> i: this->finalSolutionTime) {
         int indice = 0;
 
         for (int j = 0; j < 2; j++) {
@@ -130,114 +73,73 @@ void Scenario::printSolution() {
     cout << "Sum: " << sum << endl;
 }
 
-vector <int> Scenario::auxSplit(string word) {
-    string aux;
-    vector <int> v;
 
-    for(int i = 0; i <= word.size(); i++) {
-        if (word[i] == ' ') {
-            v.push_back(stoi(aux));
-            aux = " ";
-            continue;
-        }
 
-        aux += word[i];
+void Scenario::generateSolution(Data *data) {
 
-        if (i == word.size()) {
-            v.push_back(stoi(aux));
-        }
-    }
+    servers = data->getServersCount();
+    jobs = data->getJobsCount();
+    spend = data->getC();
+    time = data->getT();
+    capacity = data->getServersCapacity();
 
-    return v;
-}
+    for(int i = 0; i < 3; i++) {
+        
+        int allocJobsCount = 0;
+        solution = vector<vector<int>>(servers);
 
-void Scenario::generateSolution() {
+        vector<double> auxCapacity = capacity;
+        for (int job = 0; job < this->jobs; job++) {
+            double aux;
+            priority_queue<pair<double, int>> sortedServersCost;
+            for (int server = 0; server < this->servers; server++) {
 
-    // Preenchendo vetor solution
-    for (int i = 0; i < this->servers; i++) {
-        vector <float> aux;
-
-        for (int j = 0; j < this->jobs; j++) {
-            aux.push_back((this->spend[i][j]*1.0));
-        }
-
-        this->solution.push_back(aux);
-    }
-
-    // DEBUG para visualizar vetor solution
-    // for (vector<float> x: this->solution) {
-    //     for(float i: x) {
-    //         cout << i << ' ';
-    //     }
-    //     cout << endl;
-    // }
-    
-    int totalTime[this->servers]; // var que auxilia no crontrole da capacidade dos serv
-
-    for(int i = 0; i < this->servers; i++) {
-        totalTime[i] = 0;
-    }
-
-    // alocando serv levando em consideracao a capacidade de cada um e a relacao 'time/spend' armazenada em solution
-    for (int i = 0; i < this->jobs; i++) {
-        float min = 1000000; // relacao 'time/spend' minima
-        int indice; // indice do servidor com relacao 'time/spend' minima
-        int control = 0; // controle caso nenhum servidor tenha capacidade de alocar o job
-        vector<int> aux;
-
-        // VERIFICAR: essas condições podem estar redundantes
-        for (int j = 0; j < this->servers; j++) {
-            // iniciando a contagem da capacidade do primeiro job
-            // apos passar por todos os serv a variavel "min" tera a relacao 'time/spend' minima para o primeiro job, e a
-            // variavel "indice" tera o indice do servidor com relacao 'time/spend' minima
-            if ((i == 0) && (this->time[j][i] <= this->capacity[j])) {
-                if (this->solution[j][i] < min) {
-                    min = this->solution[j][i];
-                    indice = j;
+                switch(i) {
+                    case 0:
+                        aux = spend[server][job];
+                        break;
+                    case 1:
+                        aux = spend[server][job]/time[server][job];
+                        break;
+                    case 2:
+                        aux = time[server][job];
+                        break;
                 }
-            // caso nenhum servidor tenha capacidade suficiente para alocar o job "control" sera igual a numero de serv
-            } else if (i == 0) {
-                control++;
+
+
+                sortedServersCost.push(make_pair(-aux, server));
             }
             
-            // para o restante dos jobs a contagem da capacidade já foi iniciada
-            // apos passar por todos os serv a variavel "min" tera a relacao 'time/spend' minima para o primeiro job, e a
-            // variavel "indice" tera o indice do servidor com relacao 'time/spend' minima
-            if ((i > 0) && (this->solution[j][i] < min) && ((totalTime[j] + this->time[j][i]) <= this->capacity[j])) {
-                min = this->solution[j][i];
-                indice = j;
-            // caso nenhum servidor tenha capacidade suficiente para alocar o job "control" sera igual a numero de serv
-            } else if (i > 0) {
-                control++;
+            while(!sortedServersCost.empty()) {
+                
+                pair<double, int> values = sortedServersCost.top();
+                double cost = values.first;
+                int server = values.second;
+
+                if(auxCapacity[server] - time[server][job] >= 0) {
+                    auxCapacity[server] -= time[server][job];
+                    solution[server].push_back(job);
+                    allocJobsCount++;
+                    break;
+                }
+
+                sortedServersCost.pop();
             }
         }
-        
-        // "control < this->servers" significa que pelo menos 1 serv tem capacidade de alocar o job
-        // caso nenhum serv tenha capacidade de alocar o job, o job deixa de ser alocador
-        if (control < this->servers) {
-            // somando o tempo do serv escolhido a soma que ajuda no controle de capacidade de cada servidor
-            totalTime[indice] += this->time[indice][i];
 
-            // adicionando servidor (indice) e custo (this->spend[indice][i]) ao vetor "finalSolutionSpend" que
-            // armazena o custo de acordo com servidor escolhido
-            aux.push_back(indice);
-            aux.push_back(this->spend[indice][i]);
+        if(allocJobsCount == jobs) break;
 
-            this->finalSolutionSpend.push_back(aux);
-
-            // adicionando servidor (indice) e tempo (this->time[indice][i]) ao vetor "finalSolutionTime" que
-            // armazena o tempo de acordo com servidor escolhido
-
-            aux.pop_back();
-            aux.push_back(this->time[indice][i]);
-
-            this->finalSolutionTime.push_back(aux);
-
-            // A solucao final esta nos vetores "finalSolutionSpend" e "finalSolutionTime", pois eles armazenam os servidores
-            // que foram escolhidos para tratar cada job.
-
-            // Armazenei em dois vetores diferentes para na funcao "printSolution" conseguir mostrar as estatisticas dos dados
-            // de uma maneira mais efetiva.
-        }
     }
+
+    for(int server = 0; server < solution.size(); server++) {
+        printf("Server %d\n", server+1);
+        double total = 0;
+        for(int jobs = 0; jobs < solution[server].size(); jobs++) {
+            printf("%d ", solution[server][jobs]+1);
+            total += time[server][solution[server][jobs]];
+        }
+        printf("Custo: %.2lf", total);
+        putchar('\n');
+    }
+    
 }
