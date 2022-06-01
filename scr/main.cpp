@@ -3,45 +3,23 @@
 #include <fstream>
 #include <string>
 #include "Scenario.hpp"
+#include "Data.hpp"
 
 using namespace std;
 
-int main() {
+int main(int argc, char *argv[]) {
+
+    Data data;
+    data.read(argv[1]);
+    // data.printData();
+
+    
     Scenario A;
-    string line;
-    ifstream data ("test.txt");
 
-    getline(data, line); 
-    A.setJobs(stoi(line));
-    getline(data, line); 
-    A.setServers(stoi(line));
+    A.generateSolution(&data);
+    //A.printSolution();
+    
 
-    getline(data, line);
-    getline(data, line);
 
-    A.addItemCapacity(line);
-
-    // A.printServersJobs();
-    // A.printCapacity();
-
-    for (int i = 0; i < 2; i++) {
-        getline(data, line);
-        if(i == 0) {
-            for (int i = 0; i < A.getServers(); i++) {
-                getline(data, line);
-                A.addItemTime(line);
-            }
-        }
-        if(i == 1) {
-            for (int i = 0; i < A.getServers(); i++) {
-                getline(data, line);
-                A.addItemSpend(line);
-            }
-        }
-    }
-
-    // A.printVectorTime();
-    // A.printVectorSpend();
-    A.generateSolution();
-    A.printSolution();
+   return 0;
 }
