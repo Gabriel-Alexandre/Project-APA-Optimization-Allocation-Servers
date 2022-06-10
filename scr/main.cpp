@@ -17,10 +17,7 @@ int main(int argc, char *argv[]) {
     Scenario A;
 
     A.generateSolution(&data);
-    A.printAux();
-    //A.printSolution();
-    
-
+    A.swap();  
 
    return 0;
 }

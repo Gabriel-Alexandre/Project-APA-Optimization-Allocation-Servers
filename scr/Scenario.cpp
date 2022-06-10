@@ -92,7 +92,7 @@ void Scenario::generateSolution(Data *data) {
 }
 
 vector<int> Scenario::caculateTotalCoastAndTimeServer(vector<vector<int>> solution) {
-    vector<int> timesAndTotalCoast(this->servers+1);
+    vector<int> timesAndTotalCoast(this->servers);
     int totalFinal = 0;
     for(int server = 0; server < solution.size(); server++) {
         double total = 0;
@@ -106,50 +106,41 @@ vector<int> Scenario::caculateTotalCoastAndTimeServer(vector<vector<int>> soluti
         totalFinal += totalCoast;
     }
 
-    timesAndTotalCoast[this->servers+1] = totalFinal;
-
     return timesAndTotalCoast;
 }
 
-vector<vector<int>> Scenario::swap(vector<vector<int>> solution) {
-    vector<vector<int>> bestSolution = solution;
-
-    vector<int> currentTime = caculateTotalCoastAndTimeServer(bestSolution);
-    int minCoast = currentTime[this->servers+1];
-    int minCoastTotal = minCoast;
-    int bestServer = -1;
-    int bestJob = -1;
-    int bestServerSwap = -1;
-    int bestJobSwap = -1;
-    currentTime.erase(currentTime.begin()+this->servers);
+bool Scenario::swap() {
+    vector<int> currentTime = caculateTotalCoastAndTimeServer(solution);
+    int minCoastTotal = 0;
+    int bestServer;
+    int bestJob;
+    int bestServerSwap;
+    int bestJobSwap;
 
     for(int server = 0; server < solution.size(); server++) {
         for(int jobs = 0; jobs < solution[server].size(); jobs++) {
             int auxCoast = 0;
-            for(int serverSwap = server; serverSwap < solution.size(); serverSwap++) {
-                for(int jobSwap = jobs + 1; jobSwap < solution[serverSwap].size(); jobSwap++) {
-                    auxCoast = minCoast - spend[server][solution[server][jobs]] - spend[serverSwap][solution[serverSwap][jobSwap]]
-                                + spend[server][solution[serverSwap][jobSwap]] + spend[serverSwap][solution[server][jobs]];
+            int spendServerJobs = spend[server][solution[server][jobs]];
+            int timeServerJobs = time[server][solution[server][jobs]];
+            int currentTimeServer = currentTime[server];
 
-                    int vCapacity1 = (currentTime[server] - time[server][solution[server][jobs]] + time[server][solution[serverSwap][jobSwap]]);
-                    int vCapacity2 = (currentTime[serverSwap] - time[serverSwap][solution[serverSwap][jobSwap]] + time[serverSwap][solution[server][jobs]]);
+            for(int serverSwap = server; serverSwap < solution.size(); serverSwap++) {
+                int spendServerSwapJob = spend[serverSwap][solution[server][jobs]];
+                int timeServerSwapJob = time[serverSwap][solution[server][jobs]];
+                int currentTimeServerSwap = currentTime[serverSwap];
+
+                for(int jobSwap = jobs + 1; jobSwap < solution[serverSwap].size(); jobSwap++) {
+                    auxCoast = - spendServerJobs - spend[serverSwap][solution[serverSwap][jobSwap]]
+                                + spend[server][solution[serverSwap][jobSwap]] + spendServerSwapJob;
+
+                    int vCapacity1 = (currentTimeServer - timeServerJobs + time[server][solution[serverSwap][jobSwap]]);
+                    int vCapacity2 = (currentTimeServerSwap - time[serverSwap][solution[serverSwap][jobSwap]] + timeServerSwapJob);
 
                     if ((auxCoast < minCoastTotal) && 
                     (vCapacity1 < capacity[server]) &&
                     (vCapacity2 < capacity[serverSwap])
                     ) {
                         minCoastTotal = auxCoast;
-
-                        currentTime[server] = vCapacity1;
-                        currentTime[serverSwap] = vCapacity2;
-
-                        // cout << minCoastTotal << endl;
-                        // cout << server << ' ' << jobs << endl;
-                        // cout << serverSwap << ' ' << jobSwap << endl;
-                        // cout << time[server][jobs] << ' ' << time[serverSwap][jobSwap] << endl;
-                        // cout << time[server][jobSwap] << ' ' << time[serverSwap][jobs] << '\n' << endl;
-
-                        // cout << vCapacity1 << ' ' << vCapacity2 << '\n' << endl;
 
                         bestServer = server;
                         bestJob = jobs;
@@ -161,25 +152,24 @@ vector<vector<int>> Scenario::swap(vector<vector<int>> solution) {
         }
     }
 
-    // cout << bestJob << ' ' << bestServer << ' ' <<  bestJobSwap << ' ' << bestServerSwap << ' ' << endl;
-
-    if(bestServer != -1) {
-        bestSolution[bestServer][bestJob] = solution[bestServerSwap][bestJobSwap];
-        bestSolution[bestServerSwap][bestJobSwap] = solution[bestServer][bestJob];
+    if(minCoastTotal < 0) {
+        int aux = solution[bestServer][bestJob];
+        solution[bestServer][bestJob] = solution[bestServerSwap][bestJobSwap];
+        solution[bestServerSwap][bestJobSwap] = aux;
     }
 
     cout << "\n\nsolução depois do swap: \n"<< endl;
 
     double totalFinalT = 0;
     double totalFinalC = 0;
-    for(int server = 0; server < bestSolution.size(); server++) {
+    for(int server = 0; server < solution.size(); server++) {
         printf("Server %d\n", server+1);
         double total = 0;
         double totalCoast = 0;
-        for(int jobs = 0; jobs < bestSolution[server].size(); jobs++) {
-            printf("%d ", bestSolution[server][jobs]+1);
-            total += time[server][bestSolution[server][jobs]];
-            totalCoast += spend[server][bestSolution[server][jobs]];
+        for(int jobs = 0; jobs < solution[server].size(); jobs++) {
+            printf("%d ", solution[server][jobs]+1);
+            total += time[server][solution[server][jobs]];
+            totalCoast += spend[server][solution[server][jobs]];
         }
         printf("Tempo: %.2lf", total);
         printf("  Custo: %.2lf", totalCoast);
@@ -191,10 +181,10 @@ vector<vector<int>> Scenario::swap(vector<vector<int>> solution) {
     printf("Total tempo: %.2lf\n", totalFinalT);
     printf("Total custo: %.2lf\n", totalFinalC);
 
-    return bestSolution;
+    if(minCoastTotal < 0) {
+        return true;
+    } else {
+        return false;
+    }
     
-}
-
-void Scenario::printAux() {
-    swap(this->solution);
 }
