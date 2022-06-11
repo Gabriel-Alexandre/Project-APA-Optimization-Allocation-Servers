@@ -70,7 +70,7 @@ void Scenario::generateSolution(Data *data) {
         if(allocJobsCount == jobs) break;
     }
     
-    printAux();
+    // printAux();
 }
 
 // Fiz isso só para teste
@@ -119,7 +119,7 @@ void Scenario::generateSolution2(Data *data) {
         }
     }
    
-    printAux();
+    // printAux();
 }
 
 vector<int> Scenario::caculateTotalCoastAndTimeServer(vector<vector<int>> solution) {
@@ -202,9 +202,9 @@ bool Scenario::swap() {
         solution[bestServer][bestJobSwap] = 1;
     }
 
-    cout << "\n\nsolução depois do swap: \n"<< endl;
+    // cout << "\n\nsolução depois do swap: \n"<< endl;
 
-    printAux();
+    // printAux();
 
     if(minCoastTotal < 0) {
         return true;
@@ -254,9 +254,9 @@ bool Scenario::reinsertion() {
         solution[bestServerR][bestJob] = 1;
     }
 
-    cout << "\n\nsolução depois do reinsertion: \n"<< endl;
+    // cout << "\n\nsolução depois do reinsertion: \n"<< endl;
 
-    printAux();
+    // printAux();
 
     if(minCoastTotal < 0) {
         return true;
