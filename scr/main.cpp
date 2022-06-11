@@ -17,7 +17,13 @@ int main(int argc, char *argv[]) {
     Scenario A;
 
     A.generateSolution(&data);
-    // A.swap();  
+    A.swap(); 
+    // int n =5;
+
+    // while(n--) {
+
+    //     A.swap();  
+    // }
 
    return 0;
 }
