@@ -153,30 +153,41 @@ bool Scenario::swap() {
             int timeServerJobs = time[server][job];
             int currentTimeServer = currentTime[server];
 
-            for(int serverSwap = server + 1; serverSwap < servers; serverSwap++) {
-                int spendServerSwapJob = spend[serverSwap][job];
-                int timeServerSwapJob = time[serverSwap][job];
-                int currentTimeServerSwap = currentTime[serverSwap];
+            if(solution[server][job] == 1) {
 
-                for(int jobSwap = job + 1; jobSwap < jobs; jobSwap++) {
-                    if(solution[server][job] == 1 && solution[serverSwap][jobSwap] == 1) {
+                for(int serverSwap = 0; serverSwap < servers; serverSwap++) {
+                    if (server == serverSwap) {
+                        continue;
+                    }
 
-                        auxCoast = - spendServerJobs - spend[serverSwap][jobSwap]
-                                    + spend[server][jobSwap] + spendServerSwapJob;
+                    int spendServerSwapJob = spend[serverSwap][job];
+                    int timeServerSwapJob = time[serverSwap][job];
+                    int currentTimeServerSwap = currentTime[serverSwap];
 
-                        int vCapacity1 = (currentTimeServer - timeServerJobs + time[server][jobSwap]);
-                        int vCapacity2 = (currentTimeServerSwap - time[serverSwap][jobSwap] + timeServerSwapJob);
+                    for(int jobSwap = 0; jobSwap < jobs; jobSwap++) {
+                        if (job == jobSwap) {
+                            continue;
+                        }
 
-                        if ((auxCoast < minCoastTotal) && 
-                        (vCapacity1 < capacity[server]) &&
-                        (vCapacity2 < capacity[serverSwap])
-                        ) {
-                            minCoastTotal = auxCoast;
+                        if(solution[serverSwap][jobSwap] == 1) {
 
-                            bestServer = server;
-                            bestJob = job;
-                            bestServerSwap = serverSwap;
-                            bestJobSwap = jobSwap;
+                            auxCoast = - spendServerJobs - spend[serverSwap][jobSwap]
+                                        + spend[server][jobSwap] + spendServerSwapJob;
+
+                            int vCapacity1 = (currentTimeServer - timeServerJobs + time[server][jobSwap]);
+                            int vCapacity2 = (currentTimeServerSwap - time[serverSwap][jobSwap] + timeServerSwapJob);
+
+                            if ((auxCoast < minCoastTotal) && 
+                            (vCapacity1 < capacity[server]) &&
+                            (vCapacity2 < capacity[serverSwap])
+                            ) {
+                                minCoastTotal = auxCoast;
+
+                                bestServer = server;
+                                bestJob = job;
+                                bestServerSwap = serverSwap;
+                                bestJobSwap = jobSwap;
+                            }
                         }
                     }
                 }
