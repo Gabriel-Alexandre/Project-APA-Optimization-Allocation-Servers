@@ -25,6 +25,8 @@ class Scenario {
         void generateSolution2(Data *data);
         // retorna -> Melhor solução encontrada depois de fazer todos movimentos possiveis de swap
         bool swap();
+        bool reinsertion();
+        void printAux();
         vector<int> caculateTotalCoastAndTimeServer(vector<vector<int>> solution);
 		
 };

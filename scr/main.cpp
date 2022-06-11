@@ -18,6 +18,7 @@ int main(int argc, char *argv[]) {
 
     A.generateSolution(&data);
     A.swap(); 
+    A.reinsertion();
     // int n =5;
 
     // while(n--) {
