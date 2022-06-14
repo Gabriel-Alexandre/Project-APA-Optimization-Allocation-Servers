@@ -12,19 +12,22 @@ class Scenario {
 	private:
 		int servers; // numero de servidores
 		int jobs; // numero de jobs
-        vector <double> capacity; // capacidade de cada servidor
-        vector <vector<double>> finalSolutionSpend; // custo de acordo com servidor escolhido
-        vector <vector<double>> finalSolutionTime; // tempo de acordo com servidor escolhido
-        vector <vector<double>> spend; // vetor de custos de cada servidor
-        vector <vector<double>> time; // vetor de tempo de cada servidor
-        vector <vector <int>> solution; // vetor de 'time/spend' de cada servidor
+        int penality;
+        vector<double> capacity; // capacidade de cada servidor
+        vector<vector<double>> spend; // vetor de custos de cada servidor
+        vector<vector<double>> time; // vetor de tempo de cada servidor
+        vector<vector<int>> solution; // vetor de 'time/spend' de cada servidor
 
 	public:
-		Scenario();         
-       
-        void printSolution();
+		Scenario();       
 
-        void generateSolution(Data *data); // gerar solucao -> escolher quais servidores serão alocados para cada job
+        void generateSolution(Data *data);
+        void generateSolution2(Data *data);
+        // retorna -> Melhor solução encontrada depois de fazer todos movimentos possiveis de swap
+        bool swap();
+        bool reinsertion();
+        void printAux();
+        vector<int> caculateTotalCoastAndTimeServer(vector<vector<int>> solution);
 		
 };
 #endif

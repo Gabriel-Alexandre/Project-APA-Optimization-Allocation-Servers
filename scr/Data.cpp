@@ -11,6 +11,7 @@ int Data::read(string fileName) {
 
     file >> n;
     file >> m;
+    file >> this->p;
 
     serversCapacity = vector<double>(m);
     for(int server = 0; server < m; server++) {
@@ -44,6 +45,10 @@ int Data::getJobsCount() {
 }
 int Data::getServersCount() {
     return t.size();
+}
+
+int Data::getPenalityCount() {
+    return this->p;
 }
 
 void Data::printCost() {

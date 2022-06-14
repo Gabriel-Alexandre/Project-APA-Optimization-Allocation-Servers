@@ -12,6 +12,7 @@ class Data {
         vector<double> serversCapacity;
         vector<vector<double>> t;
         vector<vector<double>> c;
+        int p;
         void printCost();
         void printTime();
         void printCapacity();
@@ -19,6 +20,7 @@ class Data {
         int read(string fileName);
         int getJobsCount();
         int getServersCount();
+        int getPenalityCount();
         void printData();
         vector<vector<double>> getT();
         vector<vector<double>> getC();

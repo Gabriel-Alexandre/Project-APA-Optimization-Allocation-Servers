@@ -8,77 +8,11 @@ Scenario::Scenario() {
     
 }
 
-
-void Scenario::printSolution() {
-    cout << "Final solution:" << endl;
-
-    int total[this->servers];
-    int sum = 0;
-
-    for(int i = 0; i < this->servers; i++) {
-        total[i] = 0;
-    }
-
-    cout << "\nSpend:\n" << endl;
-
-    for(vector <double> i: this->finalSolutionSpend) {
-        int indice = 0;
-
-        for (int j = 0; j < 2; j++) {
-            if (j == 0) {
-                indice = i[j];
-            }
-            if (j == 1) {
-                total[indice] += i[j];
-                sum += i[j];
-            }
-
-            cout << i[j] << ' ';
-        }
-        cout << endl;
-    }
-
-    for (int i = 0; i < this->servers; i++) {
-        cout << "Total spend[" << i << "] : " << total[i] << endl;
-    }
-    cout << "Sum: " << sum << endl;
-
-    for(int i = 0; i < this->servers; i++) {
-        total[i] = 0;
-    }
-
-    sum = 0;
-
-    cout << "\nTime:\n" << endl;
-
-    for(vector <double> i: this->finalSolutionTime) {
-        int indice = 0;
-
-        for (int j = 0; j < 2; j++) {
-            if (j == 0) {
-                indice = i[j];
-            }
-            if (j == 1) {
-                total[indice] += i[j];
-                sum += i[j];
-            }
-
-            cout << i[j] << ' ';
-        }
-        cout << endl;
-    }
-    for (int i = 0; i < this->servers; i++) {
-        cout << "Total time[" << i << "] : " << total[i] << endl;
-    }
-    cout << "Sum: " << sum << endl;
-}
-
-
-
 void Scenario::generateSolution(Data *data) {
 
     servers = data->getServersCount();
     jobs = data->getJobsCount();
+    penality = data->getPenalityCount();
     spend = data->getC();
     time = data->getT();
     capacity = data->getServersCapacity();
@@ -86,7 +20,14 @@ void Scenario::generateSolution(Data *data) {
     for(int i = 0; i < 3; i++) {
         
         int allocJobsCount = 0;
-        solution = vector<vector<int>>(servers);
+        vector<int> vectorJobs(jobs);
+        solution = vector<vector<int>>(servers, vectorJobs);
+
+        for(int i = 0; i < servers; i++) {
+            for (int j = 0; j < jobs; j++) {
+                solution[i][j] = 0;
+            }
+        }
 
         vector<double> auxCapacity = capacity;
         for (int job = 0; job < this->jobs; job++) {
@@ -106,7 +47,6 @@ void Scenario::generateSolution(Data *data) {
                         break;
                 }
 
-
                 sortedServersCost.push(make_pair(-aux, server));
             }
             
@@ -118,7 +58,7 @@ void Scenario::generateSolution(Data *data) {
 
                 if(auxCapacity[server] - time[server][job] >= 0) {
                     auxCapacity[server] -= time[server][job];
-                    solution[server].push_back(job);
+                    solution[server][job] = 1;
                     allocJobsCount++;
                     break;
                 }
@@ -128,18 +68,230 @@ void Scenario::generateSolution(Data *data) {
         }
 
         if(allocJobsCount == jobs) break;
-
-    }
-
-    for(int server = 0; server < solution.size(); server++) {
-        printf("Server %d\n", server+1);
-        double total = 0;
-        for(int jobs = 0; jobs < solution[server].size(); jobs++) {
-            printf("%d ", solution[server][jobs]+1);
-            total += time[server][solution[server][jobs]];
-        }
-        printf("Custo: %.2lf", total);
-        putchar('\n');
     }
     
+    // printAux();
+}
+
+// Fiz isso só para teste
+void Scenario::generateSolution2(Data *data) {
+
+    servers = data->getServersCount();
+    jobs = data->getJobsCount();
+    penality = data->getPenalityCount();
+    spend = data->getC();
+    time = data->getT();
+    capacity = data->getServersCapacity();
+
+    vector<int> vectorJobs(jobs);
+    solution = vector<vector<int>>(servers, vectorJobs);
+
+    for(int i = 0; i < servers; i++) {
+        for (int j = 0; j < jobs; j++) {
+            solution[i][j] = 0;
+        }
+    }
+
+    vector<double> auxCapacity = capacity;
+    for (int job = 0; job < this->jobs; job++) {
+        double aux;
+        priority_queue<pair<double, int>> sortedServersCost;
+        for (int server = 0; server < this->servers; server++) {
+
+            aux = spend[server][job];
+
+            sortedServersCost.push(make_pair(-aux, server));
+        }
+        
+        while(!sortedServersCost.empty()) {
+            
+            pair<double, int> values = sortedServersCost.top();
+            double cost = values.first;
+            int server = values.second;
+
+            if(auxCapacity[server] - time[server][job] >= 0) {
+                auxCapacity[server] -= time[server][job];
+                solution[server][job] = 1;
+                break;
+            }
+
+            sortedServersCost.pop();
+        }
+    }
+   
+    // printAux();
+}
+
+vector<int> Scenario::caculateTotalCoastAndTimeServer(vector<vector<int>> solution) {
+    vector<int> timesAndTotalCoast(this->servers);
+
+    for(int server = 0; server < servers; server++) {
+        int total = 0;
+        for(int job = 0; job < jobs; job++) {
+            if(solution[server][job] == 1) {
+                total += time[server][job];
+            }
+        }
+        timesAndTotalCoast[server] = total;
+    }
+
+    return timesAndTotalCoast;
+}
+
+bool Scenario::swap() {
+    vector<int> currentTime = caculateTotalCoastAndTimeServer(solution);
+    int minCoastTotal = 0;
+    int bestServer;
+    int bestJob;
+    int bestServerSwap;
+    int bestJobSwap;
+
+    for(int server = 0; server < servers; server++) {
+        for(int job = 0; job < jobs; job++) {
+            int auxCoast = 0;
+            int spendServerJobs = spend[server][job];
+            int timeServerJobs = time[server][job];
+            int currentTimeServer = currentTime[server];
+
+            if(solution[server][job] == 1) {
+
+                for(int serverSwap = 0; serverSwap < servers; serverSwap++) {
+                    if (server == serverSwap) {
+                        continue;
+                    }
+
+                    int spendServerSwapJob = spend[serverSwap][job];
+                    int timeServerSwapJob = time[serverSwap][job];
+                    int currentTimeServerSwap = currentTime[serverSwap];
+
+                    for(int jobSwap = 0; jobSwap < jobs; jobSwap++) {
+                        if (job == jobSwap) {
+                            continue;
+                        }
+
+                        if(solution[serverSwap][jobSwap] == 1) {
+
+                            auxCoast = - spendServerJobs - spend[serverSwap][jobSwap]
+                                        + spend[server][jobSwap] + spendServerSwapJob;
+
+                            int vCapacity1 = (currentTimeServer - timeServerJobs + time[server][jobSwap]);
+                            int vCapacity2 = (currentTimeServerSwap - time[serverSwap][jobSwap] + timeServerSwapJob);
+
+                            if ((auxCoast < minCoastTotal) && 
+                            (vCapacity1 < capacity[server]) &&
+                            (vCapacity2 < capacity[serverSwap])
+                            ) {
+                                minCoastTotal = auxCoast;
+
+                                bestServer = server;
+                                bestJob = job;
+                                bestServerSwap = serverSwap;
+                                bestJobSwap = jobSwap;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if(minCoastTotal < 0) {
+        solution[bestServer][bestJob] = 0;
+        solution[bestServerSwap][bestJob] = 1;
+        solution[bestServerSwap][bestJobSwap] = 0;
+        solution[bestServer][bestJobSwap] = 1;
+    }
+
+    // cout << "\n\nsolução depois do swap: \n"<< endl;
+
+    // printAux();
+
+    if(minCoastTotal < 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool Scenario::reinsertion() {
+    vector<int> currentTime = caculateTotalCoastAndTimeServer(solution);
+    int minCoastTotal = 0;
+    int bestServer;
+    int bestJob;
+    int bestServerR;
+
+    for(int server = 0; server < servers; server++) {
+        for(int job = 0; job < jobs; job++) {
+            int spendServerJob = spend[server][job];
+            
+            if(solution[server][job] == 1) {
+                for(int serverR = 0; serverR < servers; serverR++) {
+                    if(serverR == server) {
+                        continue;
+                    }
+                    int auxCoast = - spendServerJob + spend[serverR][job];
+
+                    int vCapacity = currentTime[serverR] + time[serverR][job];
+
+                    if ((auxCoast < minCoastTotal) && 
+                        (vCapacity < capacity[serverR]))
+                    {
+                        minCoastTotal = auxCoast;
+
+                        bestServer = server;
+                        bestServerR = serverR;
+                        bestJob = job;
+                    }
+                }
+
+            }
+
+        }
+    }
+
+    if(minCoastTotal < 0) {
+        solution[bestServer][bestJob] = 0;
+        solution[bestServerR][bestJob] = 1;
+    }
+
+    // cout << "\n\nsolução depois do reinsertion: \n"<< endl;
+
+    // printAux();
+
+    if(minCoastTotal < 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void Scenario::printAux() {
+    double totalFinalT = 0;
+    double totalFinalC = 0;
+    int jobControl = 0;
+    for(int server = 0; server < servers; server++) {
+        printf("Server %d\n", server+1);
+        double totaltime = 0;
+        double totalCoast = 0;
+        for(int job = 0; job < jobs; job++) {
+            if(solution[server][job] == 1) {
+                printf("%d ", job+1);
+                totaltime += time[server][job];
+                totalCoast += spend[server][job];
+                jobControl++;
+            }
+        }
+        printf("Tempo: %.2lf", totaltime);
+        printf("  Custo: %.2lf", totalCoast);
+        putchar('\n');
+        totalFinalT += totaltime;
+        totalFinalC += totalCoast;
+    }
+
+    if (jobControl < jobs) {
+        totalFinalC = totalFinalC+ (jobs - jobControl) * penality;
+    }
+
+    printf("Total tempo: %.2lf\n", totalFinalT);
+    printf("Total custo: %.2lf\n", totalFinalC);
 }
