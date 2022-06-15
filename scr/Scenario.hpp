@@ -6,7 +6,7 @@
 
 #include "Data.hpp"
 
-#define MAX_CONSTRUCTIONS 3
+#define MAX_CONSTRUCTIONS 1
 
 using namespace std;
 	
@@ -38,5 +38,6 @@ class Scenario {
         void printServersTime();
         bool swapNotAllocJobs();
         void ILS();
+        void printSolution();
 };
 #endif

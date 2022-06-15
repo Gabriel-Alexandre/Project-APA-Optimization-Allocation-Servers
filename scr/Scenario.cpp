@@ -35,6 +35,64 @@ void Scenario::construction(Data *data) {
             }
         }
 
+        vector<int> candidates;
+        for(int i = 0; i < jobsCount; i++) {
+            candidates.push_back(i);
+        }
+        
+        vector<double> auxCapacity = capacity;
+        while(!candidates.empty()) {
+            int i = rand() % candidates.size();
+            int job = candidates[i];
+
+            double aux;
+            priority_queue<pair<double, int>> sortedServersCost;
+            for (int server = 0; server < this->serversCount; server++) {
+                switch(i) {
+                    case 0:
+                        aux = cost[server][job];
+                        break;
+                    case 1:
+                        aux = cost[server][job]/time[server][job];
+                        break;
+                    case 2:
+                        aux = time[server][job];
+                        break;
+                }
+
+                sortedServersCost.push(make_pair(-aux, server));
+            }
+            
+            bool serverAlloc = false;
+            while(!sortedServersCost.empty()) {
+                
+                pair<double, int> values = sortedServersCost.top();
+                double auxCost = values.first;
+                int server = values.second;
+
+                if(auxCapacity[server] - time[server][job] >= 0) {
+                    auxCapacity[server] -= time[server][job];
+                    solution[server][job] = 1;
+                    allocJobsCount++;
+                    currentTimeByServer[server] += time[server][job];
+                    objectiveValue += cost[server][job];
+                    serverAlloc = true;
+                    break;
+                }
+
+                sortedServersCost.pop();
+            }
+
+            if(!serverAlloc) {
+                //printf("Not alloc: %d\n", job+1);
+                //getchar();
+                jobsNotAlloc.push_back(job);
+            }
+
+            candidates.erase(candidates.begin() + i);
+        }
+        /*
+
         vector<double> auxCapacity = capacity;
         for (int job = 0; job < this->jobsCount; job++) {
             double aux;
@@ -81,15 +139,15 @@ void Scenario::construction(Data *data) {
                 jobsNotAlloc.push_back(job);
             }
         }
-
+        */
         if(allocJobsCount == jobsCount) break;
     }
 
     
 
     objectiveValue += jobsNotAlloc.size() *penality;
-    printf("Custo: %.4lf\n", objectiveValue);
-    printAux();
+    //printf("Custo: %.4lf\n", objectiveValue);
+    //printAux();
 }
 
 bool Scenario::swap() {
@@ -325,12 +383,12 @@ void Scenario::printAux() {
     double totalFinalC = 0;
     int jobControl = 0;
     for(int server = 0; server < serversCount; server++) {
-        printf("Server %d\n", server+1);
+        //printf("Server %d\n", server+1);
         double totaltime = 0;
         double totalCoast = 0;
         for(int job = 0; job < jobsCount; job++) {
             if(solution[server][job] == 1) {
-                printf("%d ", job+1);
+                //printf("%d ", job+1);
                 totaltime += time[server][job];
                 totalCoast += cost[server][job];
                 jobControl++;
@@ -371,20 +429,33 @@ void Scenario::printServersTime() {
 }
 
 void Scenario::ILS() {
+    int n = 1;
+    while(n--) {
 
-    int server = rand() % serversCount;
+        int server = rand() % serversCount;
 
-    for(int job = 0; job < jobsCount; job++) {
+        for(int job = 0; job < jobsCount; job++) {
 
-        if(solution[server][job]) {
+            if(solution[server][job]) {
 
-            solution[server][job] = 0;
-            objectiveValue += (penality - cost[server][job]);
-            jobsNotAlloc.push_back(job);
-            currentTimeByServer[server] -= time[server][job];
+                solution[server][job] = 0;
+                objectiveValue += (penality - cost[server][job]);
+                jobsNotAlloc.push_back(job);
+                currentTimeByServer[server] -= time[server][job];
+
+            }
 
         }
+    }
+}
 
+void Scenario::printSolution() {
+
+    for(int server = 0; server < solution.size(); server++) {
+        for(int job = 0; job < solution[server].size(); job++) {
+            printf("%d ", solution[server][job]);
+        }
+        putchar('\n');
     }
 
 
